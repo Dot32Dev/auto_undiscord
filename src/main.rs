@@ -7,6 +7,7 @@ use std::io::BufRead;
 use std::error::Error;
 use std::fs::File;
 use std::io::copy;
+use std::io::Write;
 
 fn main() {
     println!("Enter the folder path to undiscord:");
@@ -50,15 +51,38 @@ fn search_file(file_path: &Path) -> Vec<String> {
     let mut found_links = Vec::new();
 
     if let Ok(lines) = read_lines(file_path) {
+        // let file_contents: Vec<String> = lines.map(|line| line.unwrap()).collect();
+        let mut updated_file_contents = Vec::new();
+
+        let mut updated = false;
+        
         for line in lines {
             if let Ok(line_content) = line {
+                let mut updated_line = line_content.clone();
+
                 if let Some(start_idx) = line_content.find("https://cdn.discordapp.com") {
                     if let Some(end_idx) = line_content[start_idx..].find('"') {
                         let link = line_content[start_idx..start_idx + end_idx].to_string();
                         // println!("Link: {}", link);
                         // let _ = download_image(link);
-                        found_links.push(link);
+                        found_links.push(link.clone());
+                        
+                        // Extract the file name from the link
+                        let file_name = extract_file_name(&link);
+                        // Replace the URL in the line with the extracted file name
+                        updated_line.replace_range(start_idx..start_idx + end_idx, format!("/images/{}", &file_name).as_str());
+                        updated = true;
                     }
+                }
+                updated_file_contents.push(updated_line);
+            }
+        }
+        
+        // Write the updated contents back to the file
+        if updated {
+            if let Ok(mut file) = fs::File::create(file_path) {
+                for line in updated_file_contents {
+                    writeln!(file, "{}", line).expect("Failed to write line");
                 }
             }
         }
@@ -99,4 +123,9 @@ fn download_image(url: &str, folder_path: &str) -> Result<(), Box<dyn Error>> {
     println!("Downloaded {}", filename);
 
     Ok(())
+}
+
+fn extract_file_name(url: &str) -> &str {
+    // Extract the file name from the URL
+    url.rsplit('/').next().unwrap_or("")
 }
