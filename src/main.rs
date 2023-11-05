@@ -21,7 +21,7 @@ fn main() {
 
     // Download the file behind every link
     for link in &links {
-        let _ = download_image(link.as_str());
+        let _ = download_image(link.as_str(), folder_path);
     }
 }
 
@@ -72,7 +72,7 @@ fn read_lines(file_path: &Path) -> Result<impl Iterator<Item = Result<String, st
     Ok(std::io::BufReader::new(file).lines().map(|line| line))
 }
 
-fn download_image(url: &str) -> Result<(), Box<dyn Error>> {
+fn download_image(url: &str, folder_path: &str) -> Result<(), Box<dyn Error>> {
     // Send a GET request to the URL
     let response = reqwest::blocking::get(url)?;
 
@@ -86,7 +86,7 @@ fn download_image(url: &str) -> Result<(), Box<dyn Error>> {
 
     // Extract the filename from the URL
     let filename = match url.rfind('/') {
-        Some(index) => format!("images/{}", &url[index + 1..]),
+        Some(index) => format!("{}/public/images/{}", folder_path, &url[index + 1..]),
         None => return Err("No filename found".into()), // ran if no slash is found
     };
 
