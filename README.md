@@ -1,5 +1,7 @@
+> [!NOTE]
+> This tool was in preparation for the day access would be denied, but cannot be used after the fact. Now that images hosted on Discord's CDN are innaccessible, this tool cannot automatically download them for you.
 # Auto Undiscord
-Did you hear that Discord will be blocking external websites from using images hosted on their servers?
+Did you hear that Discord will be blocking external websites from accessing images hosted on their servers?
 Did you host every image on your website on Discord and now don't want to change hundreds of image links?
 
 This program automatically scans a website's sourcecode for Discord CDN links and downloads every image into the public folder. It also updates the original links to reference the freshly downloaded files!
